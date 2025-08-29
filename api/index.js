@@ -12,7 +12,8 @@ module.exports = async (req, res) => {
     const { data } = await axios.get(articleUrl);
     const $ = cheerio.load(data);
 
-    const articleText = $('.entry-content').text();
+    // Новый, правильный селектор
+    const articleText = $('.wysiwyg-wrapper').text();
 
     if (articleText) {
       res.status(200).send(articleText);
