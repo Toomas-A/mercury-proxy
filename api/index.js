@@ -1,21 +1,21 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const playwright = require('playwright'); // Новая зависимость: Playwright
 
 const selectors = {
-  // Сайты, которые должны работать с cheerio
+  // Исправленный селектор для runningshoesguru.com
+  'www.runningshoesguru.com': '.entry-content, .post-content-wrapper', 
+  
+  // Исправленный селектор для believeintherun.com
   'believeintherun.com': '.entry-content', 
+  
+  // Исправленный селектор для doctorsofrunning.com
+  'www.doctorsofrunning.com': '.post-content', 
+
+  // Сайты, которые уже работали с этими селекторами
   'www.roadtrailrun.com': '.post-body',
   'weartesters.com': '.entry-content',
   'www.runnersworld.com': '.article-body',
   'www.irunfar.com': '.entry-content',
-  'www.doctorsofrunning.com': '.post-content',
-
-  // Сайт, требующий Playwright
-  'www.runningshoesguru.com': {
-    usePlaywright: true,
-    selector: '.entry-content' // Упрощенный и более прямой селектор для Playwright
-  },
 };
 
 module.exports = async (req, res) => {
@@ -28,52 +28,29 @@ module.exports = async (req, res) => {
 
   try {
     const { hostname } = new URL(articleUrl);
-    const config = selectors[hostname] || null;
+    const selector = selectors[hostname] || null;
 
-    if (!config) {
-      console.error(`No configuration found for domain: ${hostname}`);
-      return res.status(404).send('No parser configuration found for this domain');
+    if (!selector) {
+      console.error(`No selector found for domain: ${hostname}`);
+      return res.status(404).send('No selector found for this domain');
     }
 
+    console.log(`Fetching content from ${articleUrl} with selector ${selector}`);
+
+    const { data } = await axios.get(articleUrl, {
+      timeout: 15000, // Увеличим таймаут на всякий случай
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
+
+    const $ = cheerio.load(data);
     let articleText = '';
 
-    if (config.usePlaywright) {
-      console.log(`Using Playwright for ${hostname} with selector ${config.selector}`);
-      let browser;
-      try {
-        browser = await playwright.chromium.launch(); // Запускаем браузер Chromium
-        const page = await browser.newPage();
-        await page.goto(articleUrl, { waitUntil: 'domcontentloaded', timeout: 30000 }); // Увеличиваем таймаут для Playwright
-
-        // Ждем, пока селектор появится на странице
-        await page.waitForSelector(config.selector, { timeout: 15000 });
-
-        // Извлекаем текст из главного элемента статьи
-        articleText = await page.$eval(config.selector, (element) => element.textContent);
-
-      } catch (pwError) {
-        console.error('Playwright failed:', pwError.message);
-        return res.status(500).send(`Failed to parse with Playwright: ${pwError.message}`);
-      } finally {
-        if (browser) {
-          await browser.close();
-        }
-      }
-
-    } else { // Используем axios и cheerio для других сайтов
-      console.log(`Using Axios/Cheerio for ${hostname} with selector ${config}`);
-      const { data } = await axios.get(articleUrl, {
-        timeout: 10000,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-      });
-
-      const $ = cheerio.load(data);
-      $(config).each((i, element) => {
-        articleText += $(element).text() + '\n\n';
-      });
-    }
+    // Перебираем найденные элементы, чтобы собрать весь текст
+    $(selector).each((i, element) => {
+      articleText += $(element).text().trim() + '\n\n'; 
+    });
 
     if (articleText.trim()) {
       console.log('Successfully extracted article text.');
