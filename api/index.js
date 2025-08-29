@@ -14,7 +14,7 @@ const selectors = {
   // Сайт, требующий Playwright
   'www.runningshoesguru.com': {
     usePlaywright: true,
-    selector: '.main-content-wrapper p, .main-content-wrapper h2' // Селектор для Playwright
+    selector: '.entry-content' // Упрощенный и более прямой селектор для Playwright
   },
 };
 
@@ -48,10 +48,8 @@ module.exports = async (req, res) => {
         // Ждем, пока селектор появится на странице
         await page.waitForSelector(config.selector, { timeout: 15000 });
 
-        // Извлекаем текст из всех элементов, соответствующих селектору
-        articleText = await page.$$eval(config.selector, (elements) => {
-          return elements.map(el => el.textContent).join('\n\n'); // Соединяем текст, добавляя абзацы
-        });
+        // Извлекаем текст из главного элемента статьи
+        articleText = await page.$eval(config.selector, (element) => element.textContent);
 
       } catch (pwError) {
         console.error('Playwright failed:', pwError.message);
