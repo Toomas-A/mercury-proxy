@@ -1,6 +1,16 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
+const selectors = {
+  'www.runningshoesguru.com': '.entry-content',
+  'believeintherun.com': '.wysiwyg-wrapper',
+  'www.roadtrailrun.com': '.post-body',
+  'weartesters.com': '.entry-content',
+  'www.runnersworld.com': '.article-body',
+  'www.irunfar.com': '.entry-content',
+  'www.doctorsofrunning.com': '.post-content',
+};
+
 module.exports = async (req, res) => {
   const articleUrl = req.query.url;
 
@@ -12,11 +22,17 @@ module.exports = async (req, res) => {
     const { data } = await axios.get(articleUrl);
     const $ = cheerio.load(data);
 
-    // Новый, правильный селектор
-    const articleText = $('.wysiwyg-wrapper').text();
+    const hostname = new URL(articleUrl).hostname;
+    const selector = selectors[hostname] || null;
 
-    if (articleText) {
-      res.status(200).send(articleText);
+    if (!selector) {
+      return res.status(404).send('No selector found for this domain');
+    }
+
+    const articleText = $(selector).text();
+
+    if (articleText.trim()) {
+      res.status(200).send(articleText.trim());
     } else {
       res.status(404).send('Could not extract text from the URL');
     }
