@@ -47,6 +47,8 @@ module.exports = async (req, res) => {
     // Если для runningshoesguru.com установлено returnRawHtml: true, возвращаем весь HTML
     if (config.returnRawHtml) {
       console.log('Returning raw HTML for inspection.');
+      console.log('First 500 chars of data:', data.substring(0, 500)); // Выводим первые 500 символов в логи
+      res.setHeader('Content-Type', 'text/plain'); // Указываем браузеру отображать как обычный текст
       return res.status(200).send(data);
     }
 
