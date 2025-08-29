@@ -2,8 +2,8 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const selectors = {
-  'www.runningshoesguru.com': '.entry-content',
-  'believeintherun.com': '.content-main',
+  'www.runningshoesguru.com': '.article-content-wrapper',
+  'believeintherun.com': '.entry-content',
   'www.roadtrailrun.com': '.post-body',
   'weartesters.com': '.entry-content',
   'www.runnersworld.com': '.article-body',
