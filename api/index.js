@@ -38,11 +38,21 @@ module.exports = async (req, res) => {
 
     console.log(`Fetching content from ${articleUrl} with selector ${selector}`);
 
+    const requestHeaders = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Referer': 'https://www.google.com/', // Имитируем переход с Google
+      'DNT': '1', // Do Not Track
+      'Connection': 'keep-alive',
+      'Upgrade-Insecure-Requests': '1',
+      // 'Cache-Control': 'no-cache', // Иногда полезно, но может быть агрессивным
+      // 'Pragma': 'no-cache', // Иногда полезно
+    };
+
     const { data } = await axios.get(articleUrl, {
       timeout: 15000, 
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-      }
+      headers: requestHeaders, // Используем расширенные заголовки
     });
 
     const $ = cheerio.load(data);
