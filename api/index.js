@@ -2,7 +2,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const selectors = {
-  'www.runningshoesguru.com': '.main-content-wrapper div.wp-block-group.is-layout-constrained div.entry-content', // Более специфичный селектор
+  'www.runningshoesguru.com': '.main-content-wrapper p, .main-content-wrapper h2', // Собираем текст из параграфов и заголовков
   'believeintherun.com': '.entry-content', 
   'www.roadtrailrun.com': '.post-body',
   'weartesters.com': '.entry-content',
@@ -38,7 +38,12 @@ module.exports = async (req, res) => {
     });
 
     const $ = cheerio.load(data);
-    const articleText = $(selector).text();
+    let articleText = '';
+
+    // Собираем текст по нескольким селекторам, чтобы быть уверенными
+    $(selector).each((i, element) => {
+      articleText += $(element).text() + '\n\n'; // Добавляем абзацы между блоками
+    });
 
     if (articleText.trim()) {
       console.log('Successfully extracted article text.');
