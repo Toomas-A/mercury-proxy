@@ -2,8 +2,8 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const selectors = {
-  // НОВЫЙ, ОЧЕНЬ ШИРОКИЙ селектор для runningshoesguru.com, нацеленный на главный контейнер
-  'www.runningshoesguru.com': '.main-content-wrapper', 
+  // Для runningshoesguru.com мы временно вернем весь HTML
+  'www.runningshoesguru.com': { returnRawHtml: true }, 
   
   // Селектор для believeintherun.com - пока оставим
   'believeintherun.com': '.entry-content', 
@@ -28,14 +28,14 @@ module.exports = async (req, res) => {
 
   try {
     const { hostname } = new URL(articleUrl);
-    const selector = selectors[hostname] || null;
+    const config = selectors[hostname] || null; // Теперь config может быть объектом или строкой
 
-    if (!selector) {
-      console.error(`No selector found for domain: ${hostname}`);
-      return res.status(404).send('No selector found for this domain');
+    if (!config) {
+      console.error(`No configuration found for domain: ${hostname}`);
+      return res.status(404).send('No parser configuration found for this domain');
     }
 
-    console.log(`Fetching content from ${articleUrl} with selector ${selector}`);
+    console.log(`Fetching content from ${articleUrl}`); // Убрали селектор из лога, так как для runningshoesguru.com его нет
 
     const { data } = await axios.get(articleUrl, {
       timeout: 15000, 
@@ -44,11 +44,19 @@ module.exports = async (req, res) => {
       }
     });
 
+    // Если для runningshoesguru.com установлено returnRawHtml: true, возвращаем весь HTML
+    if (config.returnRawHtml) {
+      console.log('Returning raw HTML for inspection.');
+      return res.status(200).send(data);
+    }
+
+    // Для остальных сайтов продолжаем парсить как обычно
     const $ = cheerio.load(data);
     let articleText = '';
 
-    // Вместо перебора отдельных элементов, берем весь текст из главного контейнера
-    articleText = $(selector).text().trim(); 
+    $(config).each((i, element) => { // Используем config напрямую, так как это селектор для остальных сайтов
+      articleText += $(element).text().trim() + '\n\n'; 
+    });
 
     if (articleText.trim()) {
       console.log('Successfully extracted article text.');
