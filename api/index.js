@@ -3,7 +3,8 @@ const cheerio = require('cheerio');
 
 const selectors = {
   // НОВЫЙ, более точный селектор для runningshoesguru.com
-  'www.runningshoesguru.com': '.entry-content p, .entry-content h1, .entry-content h2, .entry-content h3, .entry-content h4, .entry-content h5, .entry-content h6, .post-content p, .post-content h1, .post-content h2, .post-content h3, .post-content h4, .post-content h5, .post-content h6', 
+  // Нацелен на основной контейнер статьи, а затем на его текстовые элементы
+  'www.runningshoesguru.com': 'main article, #primary p, .content-area p, .entry-content p, .post-content p, .elementor-widget-text-editor p, main article h1, main article h2, main article h3, main article h4, main article h5, main article h6', 
   
   // Селектор для believeintherun.com - пока оставим
   'believeintherun.com': '.entry-content', 
