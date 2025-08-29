@@ -1,34 +1,26 @@
-const Mercury = require('@postlight/mercury-parser');
+const axios = require('axios');
+const cheerio = require('cheerio');
 
-exports.handler = async (event) => {
-  const articleUrl = event.queryStringParameters.url;
+module.exports = async (req, res) => {
+  const articleUrl = req.query.url;
 
   if (!articleUrl) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Missing required "url" query parameter' }),
-    };
+    return res.status(400).send('Missing required "url" query parameter');
   }
 
   try {
-    const result = await Mercury.parse(articleUrl);
+    const { data } = await axios.get(articleUrl);
+    const $ = cheerio.load(data);
 
-    if (result && result.text) {
-      return {
-        statusCode: 200,
-        body: result.text,
-      };
+    const articleText = $('.entry-content').text();
+
+    if (articleText) {
+      res.status(200).send(articleText);
     } else {
-      return {
-        statusCode: 404,
-        body: JSON.stringify({ error: 'Could not extract text from the URL' }),
-      };
+      res.status(404).send('Could not extract text from the URL');
     }
   } catch (error) {
     console.error('Parsing failed:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to parse the provided URL' }),
-    };
+    res.status(500).send('Failed to parse the provided URL');
   }
 };
