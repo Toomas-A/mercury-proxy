@@ -2,13 +2,13 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const selectors = {
-  // НОВЫЙ, БОЛЕЕ СПЕЦИФИЧНЫЙ селектор для runningshoesguru.com
-  'www.runningshoesguru.com': '.main-content-wrapper div.elementor-widget-container', 
+  // НОВЫЙ, БОЛЕЕ ШИРОКИЙ селектор для runningshoesguru.com
+  'www.runningshoesguru.com': 'div.row.justify-content-center.flex div.col-sm-12.col-md-10.col-lg-8', 
   
-  // Селектор для believeintherun.com - пока оставим, но проверим позже
+  // Селектор для believeintherun.com - пока оставим
   'believeintherun.com': '.entry-content', 
   
-  // Селектор для doctorsofrunning.com - пока оставим, но проверим позже
+  // Селектор для doctorsofrunning.com - пока оставим
   'www.doctorsofrunning.com': '.post-content', 
 
   // Сайты, которые уже работали с этими селекторами
