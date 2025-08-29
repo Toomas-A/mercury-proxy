@@ -2,13 +2,13 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const selectors = {
-  // Исправленный селектор для runningshoesguru.com
-  'www.runningshoesguru.com': '.entry-content, .post-content-wrapper', 
+  // НОВЫЙ, БОЛЕЕ СПЕЦИФИЧНЫЙ селектор для runningshoesguru.com
+  'www.runningshoesguru.com': '.main-content-wrapper div.elementor-widget-container', 
   
-  // Исправленный селектор для believeintherun.com
+  // Селектор для believeintherun.com - пока оставим, но проверим позже
   'believeintherun.com': '.entry-content', 
   
-  // Исправленный селектор для doctorsofrunning.com
+  // Селектор для doctorsofrunning.com - пока оставим, но проверим позже
   'www.doctorsofrunning.com': '.post-content', 
 
   // Сайты, которые уже работали с этими селекторами
@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
     console.log(`Fetching content from ${articleUrl} with selector ${selector}`);
 
     const { data } = await axios.get(articleUrl, {
-      timeout: 15000, // Увеличим таймаут на всякий случай
+      timeout: 15000, 
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
@@ -47,7 +47,6 @@ module.exports = async (req, res) => {
     const $ = cheerio.load(data);
     let articleText = '';
 
-    // Перебираем найденные элементы, чтобы собрать весь текст
     $(selector).each((i, element) => {
       articleText += $(element).text().trim() + '\n\n'; 
     });
