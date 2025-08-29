@@ -2,8 +2,8 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const selectors = {
-  // НОВЫЙ селектор для runningshoesguru.com
-  'www.runningshoesguru.com': '.entry-content, .post-content', 
+  // НОВЫЙ, ОЧЕНЬ ШИРОКИЙ селектор для runningshoesguru.com
+  'www.runningshoesguru.com': 'body', 
   
   // Селектор для believeintherun.com - пока оставим
   'believeintherun.com': '.entry-content', 
@@ -47,9 +47,8 @@ module.exports = async (req, res) => {
     const $ = cheerio.load(data);
     let articleText = '';
 
-    $(selector).each((i, element) => { 
-      articleText += $(element).text().trim() + '\n\n'; 
-    });
+    // Берем весь текст из выбранного селектора
+    articleText = $(selector).text().trim(); 
 
     if (articleText.trim()) {
       console.log('Successfully extracted article text.');
