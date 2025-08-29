@@ -2,7 +2,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const selectors = {
-  'www.runningshoesguru.com': '.main-content-wrapper .entry-content, .main-content-wrapper .column-content, .post-content-wrapper .entry-content', // Более универсальный селектор
+  'www.runningshoesguru.com': '.main-content-wrapper div.wp-block-group.is-layout-constrained div.entry-content', // Более специфичный селектор
   'believeintherun.com': '.entry-content', 
   'www.roadtrailrun.com': '.post-body',
   'weartesters.com': '.entry-content',
