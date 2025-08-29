@@ -2,8 +2,8 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const selectors = {
-  // Для runningshoesguru.com мы временно вернем весь HTML
-  'www.runningshoesguru.com': { returnRawHtml: true }, 
+  // НОВЫЙ селектор для runningshoesguru.com
+  'www.runningshoesguru.com': '.entry-content, .post-content', 
   
   // Селектор для believeintherun.com - пока оставим
   'believeintherun.com': '.entry-content', 
@@ -28,14 +28,14 @@ module.exports = async (req, res) => {
 
   try {
     const { hostname } = new URL(articleUrl);
-    const config = selectors[hostname] || null; // Теперь config может быть объектом или строкой
+    const selector = selectors[hostname] || null;
 
-    if (!config) {
-      console.error(`No configuration found for domain: ${hostname}`);
-      return res.status(404).send('No parser configuration found for this domain');
+    if (!selector) {
+      console.error(`No selector found for domain: ${hostname}`);
+      return res.status(404).send('No selector found for this domain');
     }
 
-    console.log(`Fetching content from ${articleUrl}`); // Убрали селектор из лога, так как для runningshoesguru.com его нет
+    console.log(`Fetching content from ${articleUrl} with selector ${selector}`);
 
     const { data } = await axios.get(articleUrl, {
       timeout: 15000, 
@@ -44,19 +44,10 @@ module.exports = async (req, res) => {
       }
     });
 
-    // Если для runningshoesguru.com установлено returnRawHtml: true, возвращаем весь HTML
-    if (config.returnRawHtml) {
-      console.log('Returning raw HTML for inspection.');
-      console.log('First 500 chars of data:', data.substring(0, 500)); // Выводим первые 500 символов в логи
-      res.setHeader('Content-Type', 'text/plain'); // Указываем браузеру отображать как обычный текст
-      return res.status(200).send(data);
-    }
-
-    // Для остальных сайтов продолжаем парсить как обычно
     const $ = cheerio.load(data);
     let articleText = '';
 
-    $(config).each((i, element) => { // Используем config напрямую, так как это селектор для остальных сайтов
+    $(selector).each((i, element) => { 
       articleText += $(element).text().trim() + '\n\n'; 
     });
 
