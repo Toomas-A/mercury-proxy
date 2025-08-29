@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 
 const selectors = {
   'www.runningshoesguru.com': '.entry-content',
-  'believeintherun.com': '.wysiwyg-wrapper',
+  'believeintherun.com': '.content-main',
   'www.roadtrailrun.com': '.post-body',
   'weartesters.com': '.entry-content',
   'www.runnersworld.com': '.article-body',
@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
     console.log(`Fetching content from ${articleUrl} with selector ${selector}`);
 
     const { data } = await axios.get(articleUrl, {
-      timeout: 10000, // Увеличиваем таймаут до 10 секунд
+      timeout: 10000,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
