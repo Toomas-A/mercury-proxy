@@ -2,21 +2,27 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const selectors = {
-  // НОВЫЙ, простой селектор для runningshoesguru.com
-  // Нацелен только на все параграфы на странице.
+  // WORKING: A simple selector for runningshoesguru.com
+  // It targets all paragraphs on the page
   'www.runningshoesguru.com': 'p', 
   
-  // Селектор для believeintherun.com - пока оставим
-  'believeintherun.com': '.entry-content', 
+  // FIXED: Selector for believeintherun.com
+  'believeintherun.com': '.pf-content p', 
   
-  // Селектор для doctorsofrunning.com - пока оставим
-  'www.doctorsofrunning.com': '.post-content', 
+  // FIXED: Selector for doctorsofrunning.com
+  'www.doctorsofrunning.com': '.post-content p', 
 
-  // Сайты, которые уже работали с этими селекторами
+  // FIXED: Selector for weartesters.com
+  'weartesters.com': '.pf-content p',
+  
+  // FIXED: Selector for runnersworld.com
+  'www.runnersworld.com': '.body-copy-01',
+
+  // FIXED: Selector for irunfar.com
+  'www.irunfar.com': '.post-content',
+
+  // NOT WORKING: Selector for roadtrailrun.com - (blocked by Google)
   'www.roadtrailrun.com': '.post-body',
-  'weartesters.com': '.entry-content',
-  'www.runnersworld.com': '.article-body',
-  'www.irunfar.com': '.entry-content',
 };
 
 module.exports = async (req, res) => {
