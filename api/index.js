@@ -13,7 +13,7 @@ const selectors = {
   'www.doctorsofrunning.com': '.entry-content', 
 
   // FIXED: Selector for weartesters.com
-  'weartesters.com': '.pf-content p',
+  'weartesters.com': '.entry-content',
   
   // FIXED: Selector for runnersworld.com
   'www.runnersworld.com': '.article-body',
