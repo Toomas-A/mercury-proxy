@@ -1,5 +1,5 @@
 {
-  "name": "mercury-parser",
+  "name": "mercury-proxy",
   "version": "1.0.0",
   "description": "A serverless function to parse articles.",
   "main": "api/index.js",
@@ -7,7 +7,7 @@
     "start": "vercel dev"
   },
   "dependencies": {
-    "axios": "^1.6.8",
-    "@postlight/mercury-parser": "^2.0.0"
+    "axios": "^1.6.2",
+    "cheerio": "^1.0.0-rc.12"
   }
 }
