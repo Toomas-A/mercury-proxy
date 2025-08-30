@@ -2,28 +2,33 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const selectors = {
-  // НОВЫЙ, простой селектор для runningshoesguru.com
-  // Нацелен только на все параграфы на странице.
+  // WORKING: A simple selector for runningshoesguru.com
+  // It targets all paragraphs on the page
   'www.runningshoesguru.com': 'p', 
   
-  // Селектор для believeintherun.com - пока оставим
-  'believeintherun.com': '.entry-content', 
+  // FIXED: Selector for believeintherun.com
+  'believeintherun.com': 'div[id*="post-body"]', 
   
-  // Селектор для doctorsofrunning.com - пока оставим
-  'www.doctorsofrunning.com': '.post-content', 
+  // FIXED: Selector for doctorsofrunning.com
+  'www.doctorsofrunning.com': '.entry-content', 
 
-  // Сайты, которые уже работали с этими селекторами
-  'www.roadtrailrun.com': '.post-body',
-  'weartesters.com': '.entry-content',
+  // FIXED: Selector for weartesters.com
+  'weartesters.com': '.pf-content p',
+  
+  // FIXED: Selector for runnersworld.com
   'www.runnersworld.com': '.article-body',
-  'www.irunfar.com': '.entry-content',
+
+  // FIXED: Selector for irunfar.com
+  'www.irunfar.com': 'div.pf-content',
+
+  // NOT WORKING: Selector for roadtrailrun.com - (blocked by Google)
+  'www.roadtrailrun.com': '.post-body',
 };
 
 module.exports = async (req, res) => {
   const articleUrl = req.query.url;
 
   if (!articleUrl) {
-    console.error('Missing URL parameter');
     return res.status(400).send('Missing required "url" query parameter');
   }
 
@@ -32,50 +37,23 @@ module.exports = async (req, res) => {
     const selector = selectors[hostname] || null;
 
     if (!selector) {
-      console.error(`No selector found for domain: ${hostname}`);
       return res.status(404).send('No selector found for this domain');
     }
 
-    console.log(`Fetching content from ${articleUrl} with selector ${selector}`);
-
-    const requestHeaders = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Referer': 'https://www.google.com/', // Имитируем переход с Google
-      'DNT': '1', // Do Not Track
-      'Connection': 'keep-alive',
-      'Upgrade-Insecure-Requests': '1',
-      // 'Cache-Control': 'no-cache', // Иногда полезно, но может быть агрессивным
-      // 'Pragma': 'no-cache', // Иногда полезно
-    };
-
-    const { data } = await axios.get(articleUrl, {
-      timeout: 15000, 
-      headers: requestHeaders, // Используем расширенные заголовки
-    });
-
+    const { data } = await axios.get(articleUrl);
     const $ = cheerio.load(data);
     let articleText = '';
 
-    // Перебираем найденные элементы, чтобы собрать весь текст
-    $(selector).each((i, element) => { 
-      articleText += $(element).text().trim() + '\n\n'; 
+    $(selector).each((i, element) => {
+      articleText += $(element).text() + '\n\n';
     });
 
     if (articleText.trim()) {
-      console.log('Successfully extracted article text.');
       res.status(200).send(articleText.trim());
     } else {
-      console.log('Extracted text is empty. Selector might be wrong or content not found.');
       res.status(404).send('Could not extract text from the URL');
     }
   } catch (error) {
-    console.error('Parsing failed:', error.message);
-    if (error.response) {
-      console.error('Response status:', error.response.status);
-      console.error('Response data:', error.response.data);
-    }
     res.status(500).send('Failed to parse the provided URL');
   }
 };
